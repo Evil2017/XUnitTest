@@ -17,14 +17,14 @@ using XUnitTest.Mvc;
 
 namespace XUnitTest.ServiceTest
 {
-    public class DatabaseFixture : IDisposable
+    public class WebApiTestFixture : IDisposable
     {
         public IServiceProvider ClientServices { get; private set; }
         public IServiceProvider ServerServices { get; private set; }
         private readonly TestServer _testServer;
-        public DatabaseFixture()
-        {
 
+        public WebApiTestFixture()
+        {
             IWebHostBuilder webHostBuilder = WebHost.CreateDefaultBuilder()
                 .ConfigureLogging((logging) =>
                 {
@@ -32,27 +32,28 @@ namespace XUnitTest.ServiceTest
                 })
                 .ConfigureServices(services =>
                 {
-                    services.AddSingleton<IMemcachedClient, NullMemcachedClient>();
-                    services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("testdb"));
+                    services.AddSingleton<Enyim.Caching.IMemcachedClient, NullMemcachedClient>();
+                    services.AddDbContext<UserDbContext>(options =>
+                    {
+                        options.UseInMemoryDatabase("testdb");
+                    });
                 })
                 .UseStartup<Startup>();
 
             _testServer = new TestServer(webHostBuilder);
             ServerServices = _testServer.Host.Services;
-            ProvisionData(ServerServices.GetRequiredService<ApplicationDbContext>());
+            ProvisionData(ServerServices.GetRequiredService<UserDbContext>());
             ConfigureClientServices(_testServer.CreateClient());
-
         }
-
 
 
         private void ConfigureClientServices(HttpClient httpClient)
         {
             IServiceCollection services = new ServiceCollection();
-            services.AddSingleton<IMemcachedClient, NullMemcachedClient>();
+            services.AddSingleton<Enyim.Caching.IMemcachedClient, NullMemcachedClient>();
             services.AddLogging(builder => builder.AddConsole());
             services.AddSingleton(httpClient);
-            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("testdb"));
+
             var basePath = AppContext.BaseDirectory;
             var servicesDllFile = Path.Combine(basePath, "XUnitTest.Mvc.dll");
             var assembly = Assembly.LoadFrom(servicesDllFile);
@@ -77,7 +78,7 @@ namespace XUnitTest.ServiceTest
             ClientServices = services.BuildServiceProvider();
         }
 
-        private void ProvisionData(ApplicationDbContext dbContext)
+        private void ProvisionData(UserDbContext dbContext)
         {
             //dbContext.Add();            
             dbContext.SaveChanges();

@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using XUnitTest.Models;
 
 namespace XUnitTest.Data
 {
-    public class UserDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
         public DbSet<UserEntity> Users { get; set; }

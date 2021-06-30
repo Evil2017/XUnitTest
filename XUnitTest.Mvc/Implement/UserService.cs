@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using XUnitTest.Data;
 using XUnitTest.Interfaces;
@@ -15,10 +14,10 @@ namespace XUnitTest.Implement
 
     public class UserService : IUserService
     {
-        private readonly UserDbContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
         private IMapper _mapper;
 
-        public UserService(UserDbContext dbContext, IMapper mapper)
+        public UserService(ApplicationDbContext dbContext, IMapper mapper)
         {
             this._dbContext = dbContext;
             this._mapper = mapper;
@@ -90,12 +89,12 @@ namespace XUnitTest.Implement
         }
         public async Task<int> GetCountAsync(Expression<Func<UserEntity, bool>> expression)
         {
-            return await _dbContext.Users.AsQueryable().AsNoTracking().CountAsync(expression);
+            return await _dbContext.Users.AsQueryable().CountAsync(expression);
         }
 
         public async Task<List<UserEntity>> GetListAsync(Expression<Func<UserEntity, bool>> expression)
         {
-            var query = _dbContext.Users.AsQueryable().AsNoTracking().Where(expression);
+            var query = _dbContext.Users.AsQueryable().Where(expression);
             var users = await query.ToListAsync();
             return users;
         }

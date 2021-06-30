@@ -1,18 +1,11 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
-using Enyim.Caching;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using ServiceStack.Caching;
 using System;
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
 using XUnitTest.Data;
 using XUnitTest.Implement;
@@ -21,57 +14,6 @@ using XUnitTest.Mvc;
 
 namespace XUnitTest.ServiceTest
 {
-    public class WebApiTestFixture : IDisposable
-    {
-        private readonly TestServer _testServer;
-
-        public WebApiTestFixture()
-        {
-            IWebHostBuilder webHostBuilder = WebHost.CreateDefaultBuilder()
-                .ConfigureLogging((logging) =>
-                {
-                    logging.AddConsole();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddSingleton<Enyim.Caching.IMemcachedClient, NullMemcachedClient>();
-                    services.AddDbContext<UserDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase("testdb");
-                    });
-                })
-                .UseStartup<Startup>();
-
-            _testServer = new TestServer(webHostBuilder);
-            ServerServices = _testServer.Host.Services;
-            ProvisionData(ServerServices.GetRequiredService<UserDbContext>());
-            ConfigureClientServices(_testServer.CreateClient());
-        }
-
-        public IServiceProvider ClientServices { get; private set; }
-        public IServiceProvider ServerServices { get; private set; }
-
-        private void ConfigureClientServices(HttpClient httpClient)
-        {
-            IServiceCollection services = new ServiceCollection();
-            services.AddSingleton<Enyim.Caching.IMemcachedClient, NullMemcachedClient>();
-            services.AddLogging(builder => builder.AddConsole());
-            services.AddSingleton(httpClient);
-            services.AddSingleton<IUserService, UserService>();
-            ClientServices = services.BuildServiceProvider();
-        }
-
-        private void ProvisionData(UserDbContext dbContext)
-        {
-            //dbContext.Add();            
-            dbContext.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-            _testServer.Dispose();
-        }
-    }
     public static class DependencyInjection
     {
         public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
@@ -87,7 +29,7 @@ namespace XUnitTest.ServiceTest
             services.AddAutoMapper(typeof(Startup));
 
             // var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<UserDbContext>(options => options.UseInMemoryDatabase("testdb"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("testdb"));
             // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             var basePath = AppContext.BaseDirectory;

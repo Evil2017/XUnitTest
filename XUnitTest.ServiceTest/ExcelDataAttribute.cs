@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ExcelDataReader;
+using System;
 using System.Collections.Generic;
-using Xunit.Sdk;
-using ExcelDataReader;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Xunit.Sdk;
 
 namespace XUnitTest.ServiceTest
 {

@@ -8,7 +8,7 @@ using XUnitTest.Data;
 
 namespace XUnitTest.Migrations
 {
-    [DbContext(typeof(UserDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20180711072429_CreateDatabase")]
     partial class CreateDatabase
     {

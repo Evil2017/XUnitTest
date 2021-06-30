@@ -1,5 +1,3 @@
-using System;
-
 namespace XUnitTest.Mvc.Models
 {
     public class ErrorViewModel

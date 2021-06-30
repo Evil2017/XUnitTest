@@ -1,21 +1,17 @@
-﻿using XUnitTest.Implement;
-using Autofac;
+﻿using Autofac;
+using AutoMapper;
 using System.Threading.Tasks;
 using Xunit;
 using XUnitTest.Interfaces;
 using XUnitTest.Models;
 using XUnitTest.ServiceTest;
-using AutoMapper;
-using XUnitTest.Data;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 
 namespace XUnitTest.Implement.Tests
 {
     [Collection("Database collection")]
     public class UserSerivceTests
     {
+
         [Theory]
         [ExcelData(fileName: @"TestCases/AdditionTestCase.xls")]
         public async Task AddAsyncTest(string name, int age)
@@ -56,30 +52,6 @@ namespace XUnitTest.Implement.Tests
             Assert.NotNull(newEntity);
             Assert.Equal(newEntity.Name, viewmodel.Name);
             Assert.Equal(newEntity.Age, viewmodel.Age);
-        }
-    }
-
-    public class UCenterServiceTests : IClassFixture<WebApiTestFixture>
-    {
-        private readonly IUserService _service;
-        private readonly UserDbContext _dbContext;
-
-        public UCenterServiceTests(WebApiTestFixture fixture)
-        {
-            _service = fixture.ClientServices.GetService<IUserService>();
-            _dbContext = fixture.ServerServices.GetService<UserDbContext>();
-        }
-
-        [Fact]
-        public async Task GetUserTest()
-        {
-            // Arrage
-            var fakeUser = await _dbContext.Users.FirstOrDefaultAsync();
-            // Act
-            var user = await _service.GetUserByName(fakeUser.Name);
-
-            // Assert
-            Assert.NotNull(user);
         }
     }
 }
